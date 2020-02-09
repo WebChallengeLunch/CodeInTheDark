@@ -59,6 +59,30 @@ body.show-instructions {
   }
 }
 
+.storybook-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  text-align: center;
+  display: none;
+
+  .storybook {
+    margin-top: 100px;
+    max-width: 900px;
+    width: 100%;
+    height: 600px;
+    display: inline-block;
+    border: 0;
+  }
+}
+
+body.show-storybook {
+  .storybook-container {
+    display: block;
+  }
+}
+
 .background {
   position: absolute;
   top: 0;
@@ -219,6 +243,11 @@ body.power-mode #editor {
 }
 
 .instructions-button {
+  float: right;
+  margin-left: 10px;
+}
+
+.storybook-button {
   float: right;
 }
 

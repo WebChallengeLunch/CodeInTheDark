@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Code in the Dark</title>
   <script src="bundle.js" inline></script>
+  <script src="questions.js"></script>
 </head>
 <body>
   <div class="background"></div>
@@ -32,9 +33,14 @@
     <iframe class="instructions" src="assets/instructions.html"></iframe>
   </div>
 
+  <div class="storybook-container">
+    <iframe class="storybook" src="http://localhost:9001/?path=/story/*"></iframe>
+  </div>
+
   <div class="button-bar">
     <button class="finish-button">Finish</button>
     <button class="instructions-button">Instructions</button>
+    <button class="storybook-button">Storybook </button>
   </div>
 
   <iframe class="result" src="assets/result.html" frameborder="0"><iframe>

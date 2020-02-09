@@ -75,6 +75,7 @@ class App
     $(window).on "beforeunload", -> "Hold your horses!"
 
     $(".instructions-container, .instructions-button").on "click", @onClickInstructions
+    $(".storybook-container, .storybook-button").on "click", @onClickStorybook
     @$reference.on "click", @onClickReference
     @$finish.on "click", @onClickFinish
     @$nameTag.on "click", => @getName true
@@ -241,6 +242,10 @@ class App
   onClickInstructions: =>
     $("body").toggleClass "show-instructions"
     @editor.focus() unless $("body").hasClass "show-instructions"
+
+  onClickStorybook: =>
+    $("body").toggleClass "show-storybook"
+    @editor.focus() unless $("body").hasClass "show-storybook"
 
   onClickReference: =>
     @$reference.toggleClass "active"

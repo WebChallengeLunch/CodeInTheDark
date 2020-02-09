@@ -26,3 +26,7 @@ This will compile all scripts and styles and inline them into a single html file
 
 ## Contributing
 Contributions to the editor welcome. If you've fixed a bug or implemented a cool new feature that you would like to share, please feel free to open a pull request here.
+
+## Steps to do
+- Generate import script in an internal repository
+- Fix result.html to include s
