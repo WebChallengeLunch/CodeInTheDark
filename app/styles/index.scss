@@ -364,6 +364,15 @@ body.power-mode {
   }
 }
 
+#questionModal {
+  .question {
+    margin-bottom: 15px;
+  }
+  .option {
+    margin-bottom: 7px;
+  }
+}
+
 @keyframes pulse {
     0% {
         animation-timing-function: ease-out;

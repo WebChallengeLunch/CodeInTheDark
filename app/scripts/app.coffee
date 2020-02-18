@@ -2,6 +2,7 @@ require "../styles/index"
 
 _ = require "underscore"
 $ = require "jquery"
+require "./interrupter"
 
 ace = require "brace"
 require "brace/mode/html"
