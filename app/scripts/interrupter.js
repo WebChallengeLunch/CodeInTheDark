@@ -27,26 +27,54 @@ class Interrupter {
   }
 
  _setQuestionTimeout() {
-    setTimeout(this._startQuestions.bind(this), this.interval);
+    setTimeout(() => {
+      this._questionsShown = false;
+      this._startQuestions();
+    }, this.interval);
   }
 
   _startQuestions() {
     // show dialog, needs a submit button
     // on submit check answer
-    console.log('start');
-    this._questionShown = false;
-    $('#questionModal').modal();
-    if (this.nAnsweredCorrectly === this.requiredAnswers) {
+    if (this.nAnsweredCorrectly >= this.requiredAnswers) {
       $.modal.close();
+    } else {
+      if (!this._questionsShown) {
+        $('#questionModal').modal();
+        this._questionsShown = true;
+      }
+      this._showQuestion().then(answeredCorrectly => {
+        this.nAnsweredCorrectly += answeredCorrectly ? 1 : 0;
+        this._processAnswer(answeredCorrectly);
+      });
     }
-    this._showQuestion().then(answeredCorrectly => {
-      this.nAnsweredCorrectly += answeredCorrectly ? 1 : 0;
-    });
+  }
+
+  _processAnswer(correct) {
+    $('#submitButton').hide();
+    $('#nextButton').show();
+    // append next button
+    const buttonText = this.nAnsweredCorrectly >= this.requiredAnswers ? 'Exit' : 'Next';
+    // const [ nextButton ] = $(`<button class="right">Next</button>`);
+    const nextButton = $('#nextButton');
+    nextButton.html(buttonText);
+    nextButton.click(() => this._startQuestions());
+    
+
+    // append correct or wrong
+    if (correct) {
+      $('#questionContainer').append('<div>That\'s right 🎉</div>');
+    } else {
+      $('#questionContainer').append('<div>Oh no! That\'s not right 😿</div>');
+    }
+    // $('#questionModal').append(nextButton);
+    // this._startQuestions();
   }
 
   _showQuestion() {
     return new Promise((resolve, reject) => {
       const question = this._getNextQuestion();
+      $('#nextButton').hide();
       const optionContainerDiv = $('<div class="option"></div>');
       question.options.forEach((option, i) => {
         optionContainerDiv.append(
@@ -54,25 +82,25 @@ class Interrupter {
         <input type="radio" id="${question.id}_${i}" value="${i}" name="${question.id}">
         <label for="${question.id}_${i}">${option}</label><br>
       `)});
-      const [ submitButton ] = $('<button>Submit</button>');
-      console.log(submitButton);
-      submitButton.onclick = () => this._checkAnswer(question, resolve);
-      // () => this._checkAnswer(question, resolve);
-      $('#questionModal').empty();
-      $('#questionModal').append(`<div class="question">${question.question}</div>`);
-      $('#questionModal').append(optionContainerDiv);
-      $('#questionModal').append(submitButton);
+      $('#submitButton').click(() => {
+        this._checkAnswer(question, resolve);
+      });
+      $('#submitButton').show();
+      $('#questionContainer').empty();
+      $('#questionContainer').append(`<div class="question">${question.question}</div>`);
+      $('#questionContainer').append(optionContainerDiv);
     });
   }
 
   _checkAnswer(question, resolve) {
-    const options = $('#questionModal input');
+    const options = $('#questionContainer input');
+    const { answer } = question;
     let selected = 0;
     for (let i = 0; i < options.length; i++) {
       selected = options[i].checked ? i : selected;
     }
     if (selected === answer) {
-      resolve(true)
+      resolve(true);
     } else {
       resolve(false);
     }
