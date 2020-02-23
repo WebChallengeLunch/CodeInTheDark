@@ -12,16 +12,18 @@ class Interrupter {
   // Shows correct or wrong
   constructor(requiredAnswers, maxQuestions) {
     console.log('Interrupter');
-    this._startDelay = 10000;
-    this._delayIncrement = 5000;
+    this._startDelay = 1000;
+    this._delayIncrement = 1000;
     this._restoreState();
     this._computeQuestions();
     this._calculateTimeout();
     this._questionsShown = false;
     this.requiredAnswers = requiredAnswers;
+    this.maxQuestions = 5;
     this._submitButton = $('#submitButton');
     this._nextButton = $('#nextButton');
     this._nextButton.click(() => this._startQuestions());
+    this._questionStreak = 0; //TODO: read from localStorage
     this._setQuestionTimeout();
   }
 
@@ -103,8 +105,12 @@ class Interrupter {
     }, this.interval);
   }
 
+  _shouldExitQuestions() {
+    return this.nAnsweredCorrectly >= this.requiredAnswers || this._questionStreak >= this.maxQuestions;
+  }
+
   _startQuestions() {
-    if (this.nAnsweredCorrectly >= this.requiredAnswers) {
+    if (this._shouldExitQuestions()) {
       $.modal.close();
       this._setState({
         questionsActive: false,
@@ -115,6 +121,7 @@ class Interrupter {
       this._questionsActive = false;
       this._calculateTimeout();
       this.nAnsweredCorrectly = 0;
+      this._questionStreak = 0;
       this._setQuestionTimeout();
     } else {
       if (!this._questionsShown) {
@@ -136,6 +143,7 @@ class Interrupter {
           });
           this._computeQuestions();
         }
+        this._questionStreak += 1;
         this._processAnswer(correct);
       });
     }
@@ -160,7 +168,7 @@ class Interrupter {
       }, 1000);
     }
     
-    const buttonText = this.nAnsweredCorrectly >= this.requiredAnswers ? 'Exit' : 'Next';
+    const buttonText = this._shouldExitQuestions() ? 'Exit' : 'Next';
     this._nextButton.html(buttonText);
 
     // append correct or wrong
@@ -218,7 +226,7 @@ class Interrupter {
 
   _getNextQuestion() {
     // Pick an unanswered question at random
-    const questionIndex = Math.floor(Math.random() * this._questionsAnswered.length);
+    const questionIndex = Math.floor(Math.random() * this.questions.length);
     return this.questions[questionIndex];
   }
 

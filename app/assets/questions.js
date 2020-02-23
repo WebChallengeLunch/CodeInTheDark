@@ -266,17 +266,17 @@ const questions = [
     ],
     answer: 2
   },
-  {
-    id: 19,
-    question: 'Which of the following ways of loading a script will block the page rendering?',
-    options: [
-      '<script async>',
-      '<script defer>',
-      '<script>',
-      '<script type="module">',
-    ],
-    answer: 3
-  },
+  // {
+  //   id: 19,
+  //   question: 'Which of the following ways of loading a script will block the page rendering?',
+  //   options: [
+  //     '<script async>',
+  //     '<script defer>',
+  //     '<script>',
+  //     '<script type="module">',
+  //   ],
+  //   answer: 3
+  // },
   {
     id: 20,
     question: 'Choose an incorrect CSS selector or a general answer',
