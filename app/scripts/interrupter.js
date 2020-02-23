@@ -85,7 +85,7 @@ class Interrupter {
       // Not set yet
       const currentDate = new Date();
       // compute diff 0-2 mins, add to currentDate + 4 mins
-      const diff = this._getDiff(.5, 1); // 4 to 6 mins
+      const diff = this._getDiff(4, 6); // 4 to 6 mins
       const questionStart = currentDate + diff;
       console.log({ questionStart });
       this._nextQuestionsStart = questionStart;
@@ -145,13 +145,10 @@ class Interrupter {
   }
 
   _processAnswer(correct) {
-    $('#submitButton').hide();
-    $('#nextButton').show();
-    // append next button
+    this._submitButton.hide();
+    this._nextButton.show();
     const buttonText = this.nAnsweredCorrectly >= this.requiredAnswers ? 'Exit' : 'Next';
-    // const [ nextButton ] = $(`<button class="right">Next</button>`);
-    const nextButton = $('#nextButton');
-    nextButton.html(buttonText);
+    this._nextButton.html(buttonText);
 
     // append correct or wrong
     if (correct) {
@@ -159,14 +156,12 @@ class Interrupter {
     } else {
       $('#questionContainer').append('<div>Oh no! That\'s not right 😿</div>');
     }
-    // $('#questionModal').append(nextButton);
-    // this._startQuestions();
   }
 
   _showQuestion() {
     return new Promise((resolve, reject) => {
       const question = this._getNextQuestion();
-      $('#nextButton').hide();
+      this._nextButton.hide();
       const optionContainerDiv = $('<div class="option"></div>');
       question.options.forEach((option, i) => {
         optionContainerDiv.append(
@@ -178,7 +173,7 @@ class Interrupter {
       this._submitButton.click(() => {
         this._checkAnswer(question, resolve);
       });
-      $('#submitButton').show();
+      this._submitButton.show();
       $('#questionContainer').empty();
       $('#questionContainer').append(`<div class="question">${question.question}</div>`);
       $('#questionContainer').append(optionContainerDiv);
