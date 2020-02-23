@@ -12,8 +12,8 @@ class Interrupter {
   // Shows correct or wrong
   constructor(requiredAnswers, maxQuestions) {
     console.log('Interrupter');
-    this._startDelay = 1000;
-    this._delayIncrement = 1000;
+    this._startDelay = 5000;
+    this._delayIncrement = 2000;
     this._restoreState();
     this._computeQuestions();
     this._calculateTimeout();
@@ -106,7 +106,7 @@ class Interrupter {
   }
 
   _shouldExitQuestions() {
-    return this.nAnsweredCorrectly >= this.requiredAnswers || this._questionStreak >= this.maxQuestions;
+    return this.nAnsweredCorrectly >= this.requiredAnswers || this._questionStreak >= this.maxQuestions || !this.questions.length;
   }
 
   _startQuestions() {
