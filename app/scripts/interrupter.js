@@ -19,38 +19,41 @@ class Interrupter {
     this._computeQuestions();
     this._calculateTimeout();
     // this.questions = JSON.parse(questions);
-    
+    this._questionsShown = false;
     this.requiredAnswers = requiredAnswers;
     // this.nAnsweredCorrectly = 0;
     // console.log(questions);
+    this._submitButton = $('#submitButton');
+    this._nextButton = $('#nextButton');
+    this._nextButton.click(() => this._startQuestions());
     this._setQuestionTimeout();
   }
 
   _restoreState() {
     // TODO: push question id to this when answered correctly
     const questionsAnswered = localStorage.getItem('questionsAnswered');
-    this._questionsAnswered = questionsAnswered && JSON.parse(questionsAnswered);
+    this._questionsAnswered = questionsAnswered ? JSON.parse(questionsAnswered) : [];
     
     // TODO: clear this when question dialog is shown and set questions active to true
     const nextQuestionsStart = localStorage.getItem('nextQuestionsStart');
     this._nextQuestionsStart = nextQuestionsStart && new Date();
 
     const questionsActive = localStorage.getItem('questionsActive');
-    this._questionsActive = JSON.parse(questionsActive);
+    this._questionsActive = JSON.parse(questionsActive) || false;
 
     const answeredInSession = localStorage.getItem('answeredInSession');
     this.nAnsweredCorrectly = answeredInSession ? JSON.parse(answeredInSession) : 0;
   }
 
   _setState({
-    newQuestionAnswered,
+    questionsAnswered,
     nextQuestionsStart,
     questionsActive,
     answeredInSession,
   }, clearValues) {
-    if (newQuestionAnswered) {
+    if (questionsAnswered) {
       const questionsAnswered = this._questionsAnswered || [];
-      questionsAnswered.push(newQuestionAnswered);
+      // questionsAnswered = [ ...questionsAnswered ];
       localStorage.setItem('questionsAnswered', JSON.stringify(questionsAnswered));
       this._computeQuestions();
     }
@@ -71,7 +74,6 @@ class Interrupter {
 
   _computeQuestions() {
     this.questions = questions.filter(question => !this._questionsAnswered.find(answeredId => answeredId === question.id));
-    console.log(this.questions.length);
   }
 
   _calculateTimeout() {
@@ -83,9 +85,9 @@ class Interrupter {
       // Not set yet
       const currentDate = new Date();
       // compute diff 0-2 mins, add to currentDate + 4 mins
-      const diff = ( Math.ceil(Math.random()) + 4 ) * 2 * 60000; // 4 to 6 mins
+      const diff = this._getDiff(.5, 1); // 4 to 6 mins
       const questionStart = currentDate + diff;
-      console.log(questionStart);
+      console.log({ questionStart });
       this._nextQuestionsStart = questionStart;
       this._setState({ nextQuestionsStart : questionStart });
       this.interval = diff;
@@ -93,13 +95,14 @@ class Interrupter {
     
   }
 
+  // Gets the difference in milliseconds given the min and max diff in minutes
+  _getDiff(min, max) {
+    return Math.ceil((Math.random() * (max - min) + min)  * 60000);
+  }
+
  _setQuestionTimeout() {
     setTimeout(() => {
-      this._questionsShown = false;
       this._startQuestions();
-      this._setState({
-        questionsActive: true,
-      }, true);
     }, this.interval);
   }
 
@@ -110,24 +113,38 @@ class Interrupter {
       $.modal.close();
       this._setState({
         questionsActive: false,
+        answeredInSession: 0,
       }, true);
       // setup for next round
+      this._questionsShown = false;
+      this._questionsActive = false;
       this._calculateTimeout();
       this.nAnsweredCorrectly = 0;
+      this._setQuestionTimeout();
     } else {
       if (!this._questionsShown) {
         $('#questionModal').modal();
         this._questionsShown = true;
+        this._questionsActive = true;
+        this._nextQuestionsStart = undefined;
+        this._setState({
+          questionsActive: true,
+        }, true);
       }
       this._showQuestion().then(({ correct, id }) => {
         this.nAnsweredCorrectly += correct ? 1 : 0;
-        this._setState({ newQuestionAnswered: id, answeredInSession: this.nAnsweredCorrectly });
+        this._questionsAnswered.push(id);
+        this._setState({
+          questionsAnswered: this._questionsAnswered,
+          answeredInSession: this.nAnsweredCorrectly,
+        });
+        this._computeQuestions();
         this._processAnswer(correct);
       });
     }
   }
 
-  _processAnswer() {
+  _processAnswer(correct) {
     $('#submitButton').hide();
     $('#nextButton').show();
     // append next button
@@ -135,8 +152,6 @@ class Interrupter {
     // const [ nextButton ] = $(`<button class="right">Next</button>`);
     const nextButton = $('#nextButton');
     nextButton.html(buttonText);
-    nextButton.click(() => this._startQuestions());
-    
 
     // append correct or wrong
     if (correct) {
@@ -159,7 +174,8 @@ class Interrupter {
         <input type="radio" id="${question.id}_${i}" value="${i}" name="${question.id}">
         <label for="${question.id}_${i}">${option}</label><br>
       `)});
-      $('#submitButton').click(() => {
+      this._submitButton.unbind();
+      this._submitButton.click(() => {
         this._checkAnswer(question, resolve);
       });
       $('#submitButton').show();
@@ -172,7 +188,7 @@ class Interrupter {
   _checkAnswer(question, resolve) {
     const options = $('#questionContainer input');
     const { answer } = question;
-    let selected = 0;
+    let selected;
     for (let i = 0; i < options.length; i++) {
       selected = options[i].checked ? i : selected;
     }
@@ -184,8 +200,9 @@ class Interrupter {
   }
 
   _getNextQuestion() {
-    // pick an unanswered one at random
-    return this.questions.shift();
+    // Pick an unanswered question at random
+    const questionIndex = Math.floor(Math.random() * this._questionsAnswered.length);
+    return this.questions[questionIndex];
   }
 
 }
