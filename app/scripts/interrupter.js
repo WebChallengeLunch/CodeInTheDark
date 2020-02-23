@@ -21,7 +21,7 @@ class Interrupter {
     // this.questions = JSON.parse(questions);
     
     this.requiredAnswers = requiredAnswers;
-    this.nAnsweredCorrectly = 0;
+    // this.nAnsweredCorrectly = 0;
     // console.log(questions);
     this._setQuestionTimeout();
   }
@@ -37,21 +37,32 @@ class Interrupter {
 
     const questionsActive = localStorage.getItem('questionsActive');
     this._questionsActive = JSON.parse(questionsActive);
+
+    const answeredInSession = localStorage.getItem('answeredInSession');
+    this.nAnsweredCorrectly = answeredInSession ? JSON.parse(answeredInSession) : 0;
   }
 
-  _setState({ newQuestionAnswered, nextQuestionsStart, questionsActive }, clearValues) {
+  _setState({
+    newQuestionAnswered,
+    nextQuestionsStart,
+    questionsActive,
+    answeredInSession,
+  }, clearValues) {
     if (newQuestionAnswered) {
       const questionsAnswered = this._questionsAnswered || [];
       questionsAnswered.push(newQuestionAnswered);
       localStorage.setItem('questionsAnswered', JSON.stringify(questionsAnswered));
       this._computeQuestions();
     }
+    if (answeredInSession != null) {
+      localStorage.setItem('answeredInSession', answeredInSession);
+    }
     if (nextQuestionsStart) {
       localStorage.setItem('nextQuestionsStart', nextQuestionsStart.toString());
     } else if (clearValues) {
       localStorage.removeItem('nextQuestionsStart');
     }
-    if (questionsActive) {
+    if (questionsActive != null) {
       localStorage.setItem('questionsActive', questionsActive);
     } else if (clearValues) {
       localStorage.removeItem('questionsActive');
@@ -72,7 +83,7 @@ class Interrupter {
       // Not set yet
       const currentDate = new Date();
       // compute diff 0-2 mins, add to currentDate + 4 mins
-      const diff = ( Math.ceil(Math.random()) + 4 ) * 120000; // 4 to 6 mins
+      const diff = ( Math.ceil(Math.random()) + 4 ) * 2 * 60000; // 4 to 6 mins
       const questionStart = currentDate + diff;
       console.log(questionStart);
       this._nextQuestionsStart = questionStart;
@@ -83,11 +94,12 @@ class Interrupter {
   }
 
  _setQuestionTimeout() {
-   console.log(this.interval);
     setTimeout(() => {
       this._questionsShown = false;
       this._startQuestions();
-      this._setState({ questionsActive: true }, true);
+      this._setState({
+        questionsActive: true,
+      }, true);
     }, this.interval);
   }
 
@@ -96,6 +108,12 @@ class Interrupter {
     // on submit check answer
     if (this.nAnsweredCorrectly >= this.requiredAnswers) {
       $.modal.close();
+      this._setState({
+        questionsActive: false,
+      }, true);
+      // setup for next round
+      this._calculateTimeout();
+      this.nAnsweredCorrectly = 0;
     } else {
       if (!this._questionsShown) {
         $('#questionModal').modal();
@@ -103,7 +121,7 @@ class Interrupter {
       }
       this._showQuestion().then(({ correct, id }) => {
         this.nAnsweredCorrectly += correct ? 1 : 0;
-        this._setState({ newQuestionAnswered: id });
+        this._setState({ newQuestionAnswered: id, answeredInSession: this.nAnsweredCorrectly });
         this._processAnswer(correct);
       });
     }
