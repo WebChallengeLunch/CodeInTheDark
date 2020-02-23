@@ -33,6 +33,11 @@ button {
     box-shadow: none;
     outline: none;
   }
+
+  &:disabled {
+    background-color: #9aa6a0;
+    cursor: wait;
+  }
 }
 
 .instructions-container {
@@ -367,6 +372,7 @@ body.power-mode {
 #questionModal {
   .question {
     margin-bottom: 15px;
+    word-break: break-word;
   }
   .option {
     margin-bottom: 7px;
@@ -374,6 +380,12 @@ body.power-mode {
   .right {
     float: right;
   }
+}
+
+#delayContainer {
+  color: red;
+  text-align: right;
+  margin-bottom: 5px;
 }
 
 @keyframes pulse {

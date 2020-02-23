@@ -12,6 +12,8 @@ class Interrupter {
   // Shows correct or wrong
   constructor(requiredAnswers, maxQuestions) {
     console.log('Interrupter');
+    this._startDelay = 10000;
+    this._delayIncrement = 5000;
     this._restoreState();
     this._computeQuestions();
     this._calculateTimeout();
@@ -28,13 +30,16 @@ class Interrupter {
     this._questionsAnswered = questionsAnswered ? JSON.parse(questionsAnswered) : [];
     
     const nextQuestionsStart = localStorage.getItem('nextQuestionsStart');
-    this._nextQuestionsStart = nextQuestionsStart && new Date();
+    this._nextQuestionsStart = nextQuestionsStart && new Date(nextQuestionsStart);
 
     const questionsActive = localStorage.getItem('questionsActive');
     this._questionsActive = JSON.parse(questionsActive) || false;
 
     const answeredInSession = localStorage.getItem('answeredInSession');
     this.nAnsweredCorrectly = answeredInSession ? JSON.parse(answeredInSession) : 0;
+
+    const currentDelay = localStorage.getItem('currentDelay');
+    this._currentDelay = currentDelay ? JSON.parse(currentDelay) : this._startDelay;
   }
 
   _setState({
@@ -71,14 +76,15 @@ class Interrupter {
     if (this._questionsActive) {
       this.interval = 0;
     } else if (this._nextQuestionsStart) {
-      this.interval = this._nextQuestionsStart - new Date();
+      console.log(this._nextQuestionsStart);
+      this.interval = this._nextQuestionsStart - Date.now();
+      console.log(this.interval);
     } else {
       // Not set yet
-      const currentDate = new Date();
       // compute diff 0-2 mins, add to currentDate + 4 mins
       const diff = this._getDiff(4, 6); // 4 to 6 mins
-      const questionStart = currentDate + diff;
-      console.log({ questionStart });
+      const questionStart = new Date(Date.now() + diff);
+      console.log(questionStart.toString());
       this._nextQuestionsStart = questionStart;
       this._setState({ nextQuestionsStart : questionStart });
       this.interval = diff;
@@ -121,13 +127,15 @@ class Interrupter {
         }, true);
       }
       this._showQuestion().then(({ correct, id }) => {
-        this.nAnsweredCorrectly += correct ? 1 : 0;
-        this._questionsAnswered.push(id);
-        this._setState({
-          questionsAnswered: this._questionsAnswered,
-          answeredInSession: this.nAnsweredCorrectly,
-        });
-        this._computeQuestions();
+        if (correct) {
+          this.nAnsweredCorrectly += 1;
+          this._questionsAnswered.push(id);
+          this._setState({
+            questionsAnswered: this._questionsAnswered,
+            answeredInSession: this.nAnsweredCorrectly,
+          });
+          this._computeQuestions();
+        }
         this._processAnswer(correct);
       });
     }
@@ -136,6 +144,22 @@ class Interrupter {
   _processAnswer(correct) {
     this._submitButton.hide();
     this._nextButton.show();
+    if (!correct) {
+      $('#delayContainer').show();
+      this._nextButton.prop('disabled', true);
+      let delay = this._currentDelay;
+      this._currentDelay += this._delayIncrement;
+      $('#delayContainer').html(this._formatMilliseconds(delay));
+      const int = setInterval(() => {
+        delay -= 1000;
+        if (delay === 0) {
+          clearInterval(int);
+          this._nextButton.prop('disabled', false);
+        }
+        $('#delayContainer').html(this._formatMilliseconds(delay));
+      }, 1000);
+    }
+    
     const buttonText = this.nAnsweredCorrectly >= this.requiredAnswers ? 'Exit' : 'Next';
     this._nextButton.html(buttonText);
 
@@ -147,9 +171,16 @@ class Interrupter {
     }
   }
 
+  _formatMilliseconds(ms) {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = ((ms % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  }
+
   _showQuestion() {
     return new Promise((resolve, reject) => {
       const question = this._getNextQuestion();
+      $('#delayContainer').hide();
       this._nextButton.hide();
       const optionContainerDiv = $('<div class="option"></div>');
       question.options.forEach((option, i) => {
@@ -176,7 +207,9 @@ class Interrupter {
     for (let i = 0; i < options.length; i++) {
       selected = options[i].checked ? i : selected;
     }
-    if (selected === answer) {
+    // option inputs are 0 indexed
+    // answers are 1 indexed
+    if (selected === (answer - 1)) {
       resolve({ id: question.id, correct: true });
     } else {
       resolve({ id: question.id, correct: false });
