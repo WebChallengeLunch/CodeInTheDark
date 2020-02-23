@@ -8,21 +8,15 @@ $.modal.defaults = {
 };
 
 class Interrupter {
-  // has the app set as a property
-  // Uses the time property of the app
   // keeps track of answered questions, pops correctly questions out, selects from remaining at random
   // Shows correct or wrong
-  // number of questions in a row, shown
   constructor(requiredAnswers, maxQuestions) {
     console.log('Interrupter');
     this._restoreState();
     this._computeQuestions();
     this._calculateTimeout();
-    // this.questions = JSON.parse(questions);
     this._questionsShown = false;
     this.requiredAnswers = requiredAnswers;
-    // this.nAnsweredCorrectly = 0;
-    // console.log(questions);
     this._submitButton = $('#submitButton');
     this._nextButton = $('#nextButton');
     this._nextButton.click(() => this._startQuestions());
@@ -30,11 +24,9 @@ class Interrupter {
   }
 
   _restoreState() {
-    // TODO: push question id to this when answered correctly
     const questionsAnswered = localStorage.getItem('questionsAnswered');
     this._questionsAnswered = questionsAnswered ? JSON.parse(questionsAnswered) : [];
     
-    // TODO: clear this when question dialog is shown and set questions active to true
     const nextQuestionsStart = localStorage.getItem('nextQuestionsStart');
     this._nextQuestionsStart = nextQuestionsStart && new Date();
 
@@ -53,7 +45,6 @@ class Interrupter {
   }, clearValues) {
     if (questionsAnswered) {
       const questionsAnswered = this._questionsAnswered || [];
-      // questionsAnswered = [ ...questionsAnswered ];
       localStorage.setItem('questionsAnswered', JSON.stringify(questionsAnswered));
       this._computeQuestions();
     }
@@ -107,8 +98,6 @@ class Interrupter {
   }
 
   _startQuestions() {
-    // show dialog, needs a submit button
-    // on submit check answer
     if (this.nAnsweredCorrectly >= this.requiredAnswers) {
       $.modal.close();
       this._setState({
