@@ -72,7 +72,7 @@ class App
     @editor.focus()
 
     @editor.getSession().on "change", @onChange
-    $(window).on "beforeunload", -> "Hold your horses!"
+    # $(window).on "beforeunload", -> "Hold your horses!"
 
     $(".instructions-container, .instructions-button").on "click", @onClickInstructions
     $(".storybook-container, .storybook-button").on "click", @onClickStorybook
@@ -252,14 +252,14 @@ class App
     @editor.focus() unless @$reference.hasClass("active")
 
   onClickFinish: =>
-    confirm = prompt "
-      This will show the results of your code. Doing this before the round is over
-      WILL DISQUALIFY YOU. Are you sure you want to proceed? Type \"yes\" to confirm.
-    "
+    # confirm = prompt "
+    #   This will show the results of your code. Doing this before the round is over
+    #   WILL DISQUALIFY YOU. Are you sure you want to proceed? Type \"yes\" to confirm.
+    # "
 
-    if confirm?.toLowerCase() is "yes"
-      @$result[0].contentWindow.postMessage(@editor.getValue(), "*")
-      @$result.show()
+    # if confirm?.toLowerCase() is "yes"
+    @$result[0].contentWindow.postMessage(@editor.getValue(), "*")
+    @$result.show()
 
   onChange: (e) =>
     @debouncedSaveContent()
