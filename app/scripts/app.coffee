@@ -2,7 +2,7 @@ require "../styles/index"
 
 _ = require "underscore"
 $ = require "jquery"
-require "./interrupter"
+Interrupter = require "./interrupter"
 
 ace = require "brace"
 require "brace/mode/html"
@@ -43,6 +43,9 @@ class App
   "Whoah!", ":O", "Nice!", "Splendid!", "Wild!", "Grand!", "Impressive!",
   "Stupendous!", "Extreme!", "Awesome!"]
 
+  REQUIRED_RIGHT_ANSWERS: 2
+  MAX_QUESTIONS: 10
+
   currentStreak: 0
   powerMode: false
   particles: []
@@ -82,6 +85,7 @@ class App
     @$nameTag.on "click", => @getName true
 
     @getName()
+    @initInterrupter()
 
     window.requestAnimationFrame? @onFrame
 
@@ -104,6 +108,9 @@ class App
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
     canvas
+
+  initInterrupter: ->
+    new Interrupter(@REQUIRED_RIGHT_ANSWERS, @MAX_QUESTIONS)
 
   getName: (forceUpdate) ->
     name = (not forceUpdate and localStorage["name"]) || prompt "What's your name?"
