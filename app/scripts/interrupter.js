@@ -122,6 +122,7 @@ class Interrupter {
       this._calculateTimeout();
       this.nAnsweredCorrectly = 0;
       this._questionStreak = 0;
+      this._currentDelay = 5000;
       this._setQuestionTimeout();
     } else {
       if (!this._questionsShown) {

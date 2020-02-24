@@ -151,16 +151,16 @@ const questions = [
     ],
     answer: 2
   },
-  {
-    id: 10,
-    question: 'Which function is slower - http://output.jsbin.com/feloni/3/quiet ? Use DevTools in a separate window to analyze',
-    options: [
-      'onSortOne',
-      'onSortTwo',
-      'equal'
-    ],
-    answer: 1
-  },
+  // {
+  //   id: 10,
+  //   question: 'Which function is slower - http://output.jsbin.com/feloni/3/quiet ? Use DevTools in a separate window to analyze',
+  //   options: [
+  //     'onSortOne',
+  //     'onSortTwo',
+  //     'equal'
+  //   ],
+  //   answer: 1
+  // },
   {
     id: 11,
     question: 'What are the difference between setTimeout and setInterval in browser and in Node.js?',
