@@ -218,7 +218,7 @@ const questions = [
   },
   {
     id: 15,
-    question: `What will the following code will output?
+    question: `What will the following code output?
     <pre>
       function a() {
         const b = () => console.log(arguments);
@@ -312,6 +312,37 @@ const questions = [
       'All correct'
     ],
     answer: 5
+  },
+  {
+    id: 23,
+    question: 'JavaScript hasn\'t always been called that. What other name has it been released as?',
+    options: [
+      'Latte',
+      'BScript',
+      'SpiderMonkey',
+      'Mocha'
+    ],
+    answer: 4
+  },
+  {
+    id: 24,
+    question: 'null is an object. Yes or no?',
+    options: [
+      'Yes',
+      'No'
+    ],
+    answer: 1
+  },
+  {
+    id: 25,
+    question: 'Which of the  following is not a reserved keyword in JavaScript?',
+    options: [
+      'default',
+      'throw',
+      'finally',
+      'undefined'
+    ],
+    answer: 4
   }
 ];
 
