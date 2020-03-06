@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Code in the Dark</title>
   <script src="bundle.js" inline></script>
-  <script src="questions.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
 </head>
 <body>
   <div class="background"></div>
@@ -42,7 +42,14 @@
     <button class="instructions-button">Instructions</button>
     <button class="storybook-button">Storybook </button>
   </div>
-
+  <div id="questionModal" class="modal">
+    <div id="questionContainer"></div>
+    <div id="delayContainer"></div>
+    <div>
+      <button id="submitButton">Submit</button>
+      <button id="nextButton" class="right">Next</button>
+    </div>
+  </div>
   <iframe class="result" src="assets/result.html" frameborder="0"><iframe>
 </body>
 </html>
